@@ -1,13 +1,14 @@
 # MVP for Solana Grizzlython by Soliage team
-import argparse
+import os
+import json
 import numpy as np
 import cv2
 from skimage import io
 from scipy.spatial.distance import cdist
 from utils.haze import getRecoverScene
 
-def cluster_colors(img_id, clusters, debug=False):
-    img = io.imread(f"data/train_{img_id}.jpg")
+def cluster_colors(img, clusters, debug=False):
+    img = io.imread(img)
     pixels = np.float32(img.reshape(-1, 3))
     
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 200, .1)
@@ -18,7 +19,7 @@ def cluster_colors(img_id, clusters, debug=False):
     while a > 0:
         _, labels, palette = cv2.kmeans(pixels, clusters, None, criteria, 10, flags)
         if np.any([sum(i) for i in zip(*palette)] > np.full((1, 3), 300)) and not hazed:
-            print("Clearing haze")
+            # print("Clearing haze")
             img = getRecoverScene(img, refine=True)
             pixels = np.float32(img.reshape(-1, 3))
             hazed = True
@@ -37,11 +38,15 @@ def cluster_colors(img_id, clusters, debug=False):
         selected_sum += counts[n]
     return selected_sum / sum(counts)
 
+directory = os.fsencode('./data/')
+dct = {}
 
-if __name__ == '__main__':
-  parser = argparse.ArgumentParser(description='Pull intent and rawTransaction from CLI args')
-  parser.add_argument('image_id', type=int,
-                      help='Please pass an identifier for an image to scan. (>0)')
-  args = parser.parse_args()
+for file in os.listdir(directory):
+    filename = os.fsdecode(file)
+    if filename.endswith('.jpg') and filename[0].isdigit():
+        value = cluster_colors(os.path.join(directory.decode("utf-8"), filename), 5)
+        dct[filename[0]] = value
+    else:
+        continue
 
-  print(cluster_colors(args.image_id, 5))
+print(json.dumps(dct))
