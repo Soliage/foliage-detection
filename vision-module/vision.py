@@ -7,6 +7,8 @@ from skimage import io
 from scipy.spatial.distance import cdist
 from utils.haze import getRecoverScene
 
+LAMPORTS_PER_SOL = 1_000_000_000
+
 def cluster_colors(img, clusters, debug=False):
     img = io.imread(img)
     pixels = np.float32(img.reshape(-1, 3))
@@ -36,7 +38,7 @@ def cluster_colors(img, clusters, debug=False):
     selected_sum = 0
     for n in selected[0]:
         selected_sum += counts[n]
-    return selected_sum / sum(counts)
+    return int(selected_sum / sum(counts) * LAMPORTS_PER_SOL)
 
 directory = os.fsencode('./data/')
 dct = {}
