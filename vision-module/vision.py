@@ -32,7 +32,7 @@ def cluster_colors(img, clusters, debug=False):
         
     _, counts = np.unique(labels, return_counts=True)
     
-    rgb_trees = np.array([30, 30, 15]).reshape(1,-1)
+    rgb_trees = palette[np.argmin(cdist(palette, np.zeros(shape=(1,3)), 'euclidean'))].reshape(1,-1)
     dist = cdist(palette, rgb_trees, 'euclidean')
     selected = np.where(dist<20)
     selected_sum = 0
