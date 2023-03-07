@@ -1,27 +1,22 @@
 // Run as index.ts
-import web3 = require('@solana/web3.js')
-import Dotenv from 'dotenv'  
-const { exec } = require('node:child_process');
+import { Keypair, Connection, PublicKey, Transaction, clusterApiUrl, sendAndConfirmTransaction, TransactionInstruction } from "@solana/web3.js";
+import Dotenv from 'dotenv';
+import { initializeKeypair, getWalletAddress } from "./config";
+import { runPy } from "./runPy";
 
 Dotenv.config()
 
-const ORACLE_ADDRESS = 'CQ9sBC6dELeBFPtRLS3YM9Zw6K91xDG1drnxzcYG9uYS'
+const ORACLE_ADDRESS = 'JCrKhCHMnwwgGByjDntnADS7zmo22petbVYwumn8s2xf'
 const PROGRAM_ADDRESS = 'ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa'
 const PROGRAM_DATA_ADDRESS = 'Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod'
 
-function initializeKeypair(): web3.Keypair {
-    const secret = JSON.parse(process.env.PRIVATE_KEY ?? "") as number[]
-    const secretKey = Uint8Array.from(secret)
-    return web3.Keypair.fromSecretKey(secretKey)
-}
+async function pingProgram(connection: Connection, payer: Keypair) {
+    const transaction = new Transaction()
 
-async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
-    const transaction = new web3.Transaction()
+    const programId = new PublicKey(PROGRAM_ADDRESS)
+    const programDataPubkey = new PublicKey(PROGRAM_DATA_ADDRESS)
 
-    const programId = new web3.PublicKey(PROGRAM_ADDRESS)
-    const programDataPubkey = new web3.PublicKey(PROGRAM_DATA_ADDRESS)
-
-    const instruction = new web3.TransactionInstruction({
+    const instruction = new TransactionInstruction({
         keys: [
             {
                 pubkey: programDataPubkey,
@@ -34,7 +29,7 @@ async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
 
     transaction.add(instruction)
 
-    const signature = await web3.sendAndConfirmTransaction(
+    const signature = await sendAndConfirmTransaction(
         connection,
         transaction,
         [payer]
@@ -42,26 +37,13 @@ async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
     console.log(signature)
 }
 
-const path = "./vision-module/vision.py";
-const arg = 1;
-
-const runPy = new Promise<string>( ( resolve, reject ) => {
-    exec(`python3 ${path} ${arg}`, (error: any, stdout: any, stderr: any) => {
-        if (error) {
-            reject(`exec error: ${stderr}`);
-            return;
-        } else {
-            resolve( stdout )
-        }
-    })
-})
-
 async function main() {
-    const payer = initializeKeypair()
-    const connection = new web3.Connection(web3.clusterApiUrl('devnet'))
+    const steward = initializeKeypair(".keys/steward_dev.json")
+    const connection = new Connection(clusterApiUrl('devnet'))
     const output = await runPy
+    const owner = getWalletAddress(connection, mintAddress);
     console.log(`Value is ${output}`)
-    await pingProgram(connection, payer)
+    await pingProgram(connection, steward)
 }
 
 main().then(() => {
