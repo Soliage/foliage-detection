@@ -40,15 +40,35 @@ def cluster_colors(img, clusters, debug=False):
         selected_sum += counts[n]
     return int(selected_sum / sum(counts) * LAMPORTS_PER_SOL)
 
+## Runs from here
 directory = os.fsencode('./data/')
-dct = {}
+f = open(directory.decode("utf-8") + 'tokens.json')
+tokens = json.load(f)
 
-for file in os.listdir(directory):
-    filename = os.fsdecode(file)
-    if filename.endswith('.jpg') and filename[0].isdigit():
-        value = cluster_colors(os.path.join(directory.decode("utf-8"), filename), 5)
-        dct[filename[0]] = value
-    else:
-        continue
+resp = []
+for id, mintAddress in tokens.items():
+    filename = 'images/' + id + '.jpg'
+    value = cluster_colors(os.path.join(directory.decode("utf-8"), filename), 5)
+    resp.append({
+        "id": id,
+        "mintAddress": mintAddress,
+        "value": value
+    })
 
-print(json.dumps(dct))
+
+# resp = []
+
+# for file in os.listdir(directory):
+#     filename = os.fsdecode(file)
+#     if filename.endswith('.jpg') and filename[0].isdigit():
+#         value = cluster_colors(os.path.join(directory.decode("utf-8"), filename), 5)
+#         resp.append({
+#             "id": filename[0],
+#             "mintAddress": tokens[filename[0]]['mintAddress'],
+#             "value": value
+#         })
+#         [] = value
+#     else:
+#         continue
+
+print(json.dumps(resp))
