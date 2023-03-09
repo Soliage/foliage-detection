@@ -30,15 +30,15 @@ async function getWalletAddress(connection: Connection, mintAccount: string): Pr
         TOKEN_PROGRAM_ID, // new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
         {
             filters: [
-            {
-                dataSize: 165, // number of bytes
-            },
-            {
-                memcmp: {
-                offset: 0, // number of bytes
-                bytes: mintAccount, // base58 encoded string
+                {
+                    dataSize: 165, // number of bytes
                 },
-            },
+                {
+                    memcmp: {
+                        offset: 0, // number of bytes
+                        bytes: mintAccount, // base58 encoded string
+                    },
+                },
             ],
         }
     );
@@ -48,11 +48,11 @@ async function getWalletAddress(connection: Connection, mintAccount: string): Pr
         const tokenBalance: number = parsedAccountInfo["parsed"]["info"]["tokenAmount"]["uiAmount"];
         if (tokenBalance > 0) {
             pubkey = parsedAccountInfo["parsed"]["info"]['owner'];
-            console.log(
-                `Found ${parsedAccountInfo["parsed"]["info"]['owner']} 
-                for token account ${account.pubkey} at
-                mintAddress ${mintAccount}`
-              );
+            // console.log(
+            //     `Found ${parsedAccountInfo["parsed"]["info"]['owner']} 
+            //     for token account ${account.pubkey} at
+            //     mintAddress ${mintAccount}`
+            //   );
         }
     });
 
