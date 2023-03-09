@@ -1,7 +1,8 @@
 import { Keypair, Connection, PublicKey } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { Account, getMint, getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import * as anchor from "@coral-xyz/anchor"
 import fs from "fs";
+import { connection, randomPayer } from "../scripts/config";
 
 const { exec } = require('node:child_process');
 
@@ -76,9 +77,37 @@ async function runPythonScript(path: string): Promise<string> {
     return runPy;
 }
 
+class TokenHelper {
+    mint: PublicKey;
+
+    constructor(mint: PublicKey) {
+        this.mint = mint;
+    }
+
+    getMint = async (): Promise<PublicKey> => {
+       return (await getMint(connection, this.mint)).address;
+    }
+
+    balance = async (tokenBag: PublicKey) => {
+        return parseInt((await connection.getTokenAccountBalance(tokenBag)).value.amount);
+    }
+
+    getOrCreateTokenBag = async (owner: PublicKey, isPDA: boolean = false): Promise<Account> => {
+        // Get or create the account for token of type mint for owner
+        return await getOrCreateAssociatedTokenAccount(
+            connection,
+            await randomPayer(),
+            this.mint,
+            owner,
+            isPDA,
+        );
+    }
+}
+
 export {
     runPythonScript,
     findMintAddress,
     initializeKeypair,
     getWalletAddress,
+    TokenHelper,
 }
