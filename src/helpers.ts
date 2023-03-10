@@ -1,6 +1,6 @@
-import { Keypair, Connection, PublicKey } from "@solana/web3.js";
+import { Keypair, Connection, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { Account, getMint, getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import * as anchor from "@coral-xyz/anchor"
+import * as anchor from "@project-serum/anchor"
 import fs from "fs";
 import { connection, randomPayer } from "../scripts/config";
 
@@ -25,6 +25,15 @@ function initializeKeypair(path: string): Keypair {
     return keypair;
 }
 
+async function initializeKeypairAndFund(path: string): Promise<Keypair> {
+    // @ts-ignore
+    const parcelData = JSON.parse(fs.readFileSync(path));
+    const keypair = anchor.web3.Keypair.fromSecretKey(new Uint8Array(parcelData));
+    const signature = await connection.requestAirdrop(keypair.publicKey, LAMPORTS_PER_SOL);
+    await connection.confirmTransaction(signature);
+    return keypair;
+}
+
 async function getWalletAddress(connection: Connection, mintAccount: string): Promise<PublicKey | undefined> {
     let pubkey: PublicKey | undefined = undefined;
     const accounts = await connection.getParsedProgramAccounts(
@@ -43,7 +52,7 @@ async function getWalletAddress(connection: Connection, mintAccount: string): Pr
             ],
         }
     );
-
+    console.log(accounts);
     accounts.forEach((account, i) => {
         const parsedAccountInfo:any = account.account.data;
         const tokenBalance: number = parsedAccountInfo["parsed"]["info"]["tokenAmount"]["uiAmount"];
@@ -108,6 +117,7 @@ export {
     runPythonScript,
     findMintAddress,
     initializeKeypair,
+    initializeKeypairAndFund,
     getWalletAddress,
     TokenHelper,
 }

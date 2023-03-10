@@ -46,12 +46,12 @@ f = open(directory.decode("utf-8") + 'tokens.json')
 tokens = json.load(f)
 
 resp = []
-for id, mintAddress in tokens.items():
-    filename = 'images/' + id + '.jpg'
+for token in tokens:
+    filename = 'images/' + str(token.get('id')) + '.jpg'
     value = cluster_colors(os.path.join(directory.decode("utf-8"), filename), 5)
     resp.append({
-        "id": id,
-        "mintAddress": mintAddress,
+        "id": token.get('id'),
+        "mintAddress": token.get('mintAddress'),
         "value": value
     })
 

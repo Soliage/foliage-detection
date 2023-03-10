@@ -1,15 +1,16 @@
 // Run as index.ts
 import { Keypair, Connection, PublicKey, Transaction, clusterApiUrl, sendAndConfirmTransaction, TransactionInstruction, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
+import * as anchor from "@project-serum/anchor";
 import {
     cotMintAddress,
     program,
-    findCotMintAuthorityPDA
+    findCotMintAuthorityPDA,
+    wallet,
+    connection
   } from "../scripts/config"
-import { initializeKeypair, getWalletAddress, findMintAddress, runPythonScript, TokenHelper } from "./helpers";
+import { initializeKeypair, getWalletAddress, findMintAddress, runPythonScript, TokenHelper, initializeKeypairAndFund } from "./helpers";
 import { VisionOutput } from "./types";
-import { utf8 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
+import { utf8 } from "@project-serum/anchor/dist/cjs/utils/bytes";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 
@@ -17,7 +18,10 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 async function main() {
     // const connection = new Connection(clusterApiUrl('devnet'));
     // const connection = new Connection('http://127.0.0.1:8899');
-    anchor.setProvider(anchor.AnchorProvider.local());
+    // anchor.setProvider(anchor.AnchorProvider.local());
+
+    // const wallet = new anchor.Wallet(await initializeKeypair("./.keys/oracle_dev.json"))
+    // anchor.setProvider(new anchor.AnchorProvider(new anchor.web3.Connection("http://127.0.0.1:8899"), wallet, {}))
     
     console.log('Fetching vision outputs...');
     const visionOutputs: VisionOutput[] = JSON.parse(await runPythonScript("./vision-module/vision.py"));
@@ -25,7 +29,7 @@ async function main() {
     for (const visionOutput of visionOutputs) {
         const mintAddress = new anchor.web3.PublicKey(visionOutput.mintAddress);
 
-        const owner = await getWalletAddress(anchor.getProvider().connection, mintAddress.toBase58());
+        const owner = await getWalletAddress(connection, mintAddress.toBase58());
         // const owner = await getWalletAddress(connection, mintAddress.toBase58());
         console.log(`Id is ${visionOutput.id}.`);
         console.log(`Owner is ${owner}.`);
