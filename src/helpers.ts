@@ -52,17 +52,11 @@ async function getWalletAddress(connection: Connection, mintAccount: string): Pr
             ],
         }
     );
-    console.log(accounts);
     accounts.forEach((account, i) => {
         const parsedAccountInfo:any = account.account.data;
         const tokenBalance: number = parsedAccountInfo["parsed"]["info"]["tokenAmount"]["uiAmount"];
         if (tokenBalance > 0) {
-            pubkey = parsedAccountInfo["parsed"]["info"]['owner'];
-            // console.log(
-            //     `Found ${parsedAccountInfo["parsed"]["info"]['owner']} 
-            //     for token account ${account.pubkey} at
-            //     mintAddress ${mintAccount}`
-            //   );
+            pubkey = new PublicKey(parsedAccountInfo["parsed"]["info"]['owner']);
         }
     });
 

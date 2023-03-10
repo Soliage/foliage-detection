@@ -26,11 +26,11 @@ async function main() {
     console.log('Fetching vision outputs...');
     const visionOutputs: VisionOutput[] = JSON.parse(await runPythonScript("./vision-module/vision.py"));
 
+    console.log(`Fetched ${visionOutputs.length} vision outputs. Parsing...`);
     for (const visionOutput of visionOutputs) {
         const mintAddress = new anchor.web3.PublicKey(visionOutput.mintAddress);
 
         const owner = await getWalletAddress(connection, mintAddress.toBase58());
-        // const owner = await getWalletAddress(connection, mintAddress.toBase58());
         console.log(`Id is ${visionOutput.id}.`);
         console.log(`Owner is ${owner}.`);
         console.log(`Forestation percentage is ${Math.round(Number(visionOutput.value) / LAMPORTS_PER_SOL * 10000)/100}%.`);
