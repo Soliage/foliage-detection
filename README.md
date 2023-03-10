@@ -1,8 +1,8 @@
 # foliage-detection
-MVP to detect level of foliage in an image
+MVP to detect level of foliage in an image. Removes haze using the Utilizes OpenCV 
 
 
-![image](https://user-images.githubusercontent.com/72612765/216818911-6dedb4f6-a450-4a25-b7c9-ec87644bff21.png)
+![Screenshot 2023-03-10 at 14-12-40 forest_v3 - Jupyter Notebook](https://user-images.githubusercontent.com/72612765/224338059-62a52f13-13d6-4ef0-8c8e-6ab1b4a3d52c.png)
 
 
 ## Quickstart:
