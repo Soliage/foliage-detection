@@ -55,20 +55,4 @@ for token in tokens:
         "value": value
     })
 
-
-# resp = []
-
-# for file in os.listdir(directory):
-#     filename = os.fsdecode(file)
-#     if filename.endswith('.jpg') and filename[0].isdigit():
-#         value = cluster_colors(os.path.join(directory.decode("utf-8"), filename), 5)
-#         resp.append({
-#             "id": filename[0],
-#             "mintAddress": tokens[filename[0]]['mintAddress'],
-#             "value": value
-#         })
-#         [] = value
-#     else:
-#         continue
-
 print(json.dumps(resp))
